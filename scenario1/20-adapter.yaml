@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: demo1-adapter-pvc 
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi
+  storageClassName: gravity-azurefile
+
+---
+
+apiVersion: "gravity.brobridge.com/v4"
+kind: "Adapter"
+metadata:
+  name: "demo1-gravity-adapter"
+spec:
+  type: mssql
+  image: st904583114/gravity-adapter-mssql:v2.1.0
+  config:
+    gravityHost: demo1-gravity-nats
+    gravityPort: 4222
+    storeEnabled: true
+    volume:
+      name: gravity-adapter-store
+      persistentVolumeClaim:
+        claimName: demo1-adapter-pvc
+    sourceSettings: |
+       {
+            "sources": {
+                    "mssql_example": {
+                            "disabled": false,
+                            "host": "demo1-mssql",
+                            "port": 1433,
+                            "username": "SA",
+                            "password": "1qaz@WSX",
+                            "dbname": "TestDB",
+                            "param": "",
+                            "initialLoad": true,
+                            "interval": 2,
+                            "tables": {
+                                    "dbo.users":{
+                                            "events": {
+                                                    "snapshot": "accountInitialized",
+                                                    "create": "accountCreated",
+                                                    "update": "accountUpdated",
+                                                    "delete": "accountDeleted"
+                                            }
+                                    }
+                            }
+                    }
+            }
+       }
+

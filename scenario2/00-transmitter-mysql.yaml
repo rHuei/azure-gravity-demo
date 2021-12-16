@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: demo2-transmitter-pvc 
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi
+  storageClassName: gravity-azurefile
+
+---
+
+apiVersion: "gravity.brobridge.com/v3"
+kind: "Transmitter"
+metadata:
+  name: "demo2-gravity-transmitter"
+spec:
+    type: mysql
+    image: brobridgehub/gravity-transmitter-mysql:v2.2.0
+    imagePullPolicy: IfNotPresent
+    config:
+      gravityHost: demo1-gravity-nats:4222
+      volume:
+        name: gravity-transmitter-store
+        persistentVolumeClaim:
+          claimName: demo2-transmitter-pvc
+      subscriptionSettings: |
+        {
+          "subscriptions": {
+            "accountData": [
+              "users"
+            ]
+          }
+        }
+      mysqlConfig:
+        host: demo2-mysql
+        port: 3306
+        secure: false
+        dbName:  gravity
+        username: mysql
+        password: 1qaz@WSX

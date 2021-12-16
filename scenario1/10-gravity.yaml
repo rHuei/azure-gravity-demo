@@ -1,0 +1,163 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gravity-controller-pvc 
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi
+  storageClassName: gravity-azurefile
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gravity-synchronizer-pvc 
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: gravity-azurefile
+
+---
+
+apiVersion: "gravity.brobridge.com/v4"
+kind: "Gravity"
+metadata:
+  name: "demo1-gravity"
+spec:
+  natsSpec:
+    replicas: 3
+
+  controllerSpec:
+    config:
+      volume:
+        name: gravity-controller-store
+        persistentVolumeClaim:
+          claimName: gravity-controller-pvc
+
+  synchronizerSpec:
+    config:
+      collectionSettings: |
+        {
+          "collections": {
+            "accountData": {
+              "schema": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "gender": { "type": "int" },
+                "username": { "type": "string" },
+                "email": { "type": "string" },
+                "phone": { "type": "string" }
+              }
+            }
+          }
+        }
+
+      rulesSettings: |
+        {
+          "rules": [
+            {
+              "event": "accountInitialized",
+              "collection": "accountData",
+              "method": "insert",
+              "primaryKey": "id",
+              "schema": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "nickname": { "type": "string" },
+                "gender": { "type": "int" },
+                "disabled": { "type": "bool" },
+                "username": { "type": "string" },
+                "password": { "type": "string" },
+                "address": { "type": "string" },
+                "email": { "type": "string" },
+                "phone": { "type": "string" }
+              },
+              "handler": {
+                "script": "
+                  return {
+                    id: source.id,
+                    name: source.name,
+                    gender: source.gender,
+                    username: source.username,
+                    email: source.email,
+                    phone: source.phone
+                  }"
+              }
+            },
+            {
+              "event": "accountCreated",
+              "collection": "accountData",
+              "method": "insert",
+              "primaryKey": "id",
+              "schema": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "nickname": { "type": "string" },
+                "gender": { "type": "int" },
+                "disabled": { "type": "bool" },
+                "username": { "type": "string" },
+                "password": { "type": "string" },
+                "address": { "type": "string" },
+                "email": { "type": "string" },
+                "phone": { "type": "string" }
+              },
+              "handler": {
+                "script": "
+                  return {
+                    id: source.id,
+                    name: source.name,
+                    gender: source.gender,
+                    username: source.username,
+                    email: source.email,
+                    phone: source.phone
+                  }"
+              }
+            },
+            {
+              "event": "accountUpdated",
+              "collection": "accountData",
+              "method": "update",
+              "primaryKey": "id",
+              "schema": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "nickname": { "type": "string" },
+                "gender": { "type": "int" },
+                "disabled": { "type": "bool" },
+                "username": { "type": "string" },
+                "password": { "type": "string" },
+                "address": { "type": "string" },
+                "email": { "type": "string" },
+                "phone": { "type": "string" }
+              },
+              "handler": {
+                "script": "
+                  return {
+                    id: source.id,
+                    name: source.name,
+                    gender: source.gender,
+                    username: source.username,
+                    email: source.email,
+                    phone: source.phone
+                  }"
+              }
+            },
+            {
+              "event": "accountDeleted",
+              "collection": "accountData",
+              "method": "delete",
+              "primaryKey": "id"
+            }
+          ]
+         }
+      volume:
+        name: gravity-synchronizer-store
+        persistentVolumeClaim:
+          claimName: gravity-synchronizer-pvc
+

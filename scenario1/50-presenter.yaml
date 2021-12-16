@@ -1,0 +1,15 @@
+apiVersion: "gravity.brobridge.com/v2"
+kind: "Presenter"
+metadata:
+  name: "demo1-presenter"
+spec:
+    type: rest
+    image: brobridgehub/gravity-presenter-rest:v1.0.1
+    replicas: 1 
+    config:
+      presenterConfig:
+        querykitHost: demo1-gravity-querykit-postgres
+        querykitPort: 44149
+      settings:
+        configMapName: gravity-template
+

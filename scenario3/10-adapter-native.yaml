@@ -1,0 +1,37 @@
+apiVersion: "gravity.brobridge.com/v4"
+kind: "Adapter"
+metadata:
+  name: "demo3-gravity-adapter"
+spec:
+  type: native
+  image: brobridgehub/gravity-adapter-native:v1.2.0
+  imagePullPolicy: Always
+  config:
+    gravityHost: demo3-gravity-nats
+    gravityPort: 4222
+    sourceSettings: |
+      {
+              "sources": {
+                      "mygravity": {
+                              "subscriber_id": "native_adapter",
+                              "subscriber_name": "Native Adapter",
+                              "host": "demo1-gravity-nats",
+                              "port": 4222,
+                              "ping_interval": 10,
+                              "max_pings_outstanding": 3,
+                              "max_reconnects": -1,
+                              "worker_count": 4,
+                              "chunk_size": 2048,
+                              "verbose": true,
+                              "collections": [
+                                      "accountData"
+                              ],          
+                              "events": {
+                                      "snapshot": "userInitialized",
+                                      "create": "userCreated",
+                                      "update": "userUpdated",
+                                      "delete": "userDeleted"
+                              }
+                      }
+              }
+      }

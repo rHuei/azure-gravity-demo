@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gravity-querykit-secret
+data:
+  postgresPassword: MXFheldXU1g=
+
+---
+
+apiVersion: "gravity.brobridge.com/v2"
+kind: "Querykit"
+metadata:
+  name: "demo1-gravity-querykit"
+spec:
+    type: postgres
+    image: brobridgehub/gravity-querykit-postgres:v1.0.1
+    replicas: 1 
+    postgresConfig:
+      host: demo1-postgres
+      port: 5432
+      secure: false
+      dbName:  postgres
+      username: postgres
+      passwordSecret:
+        name: gravity-querykit-secret
+        key: postgresPassword
+

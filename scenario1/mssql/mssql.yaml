@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo1-mssql
+  labels:
+    app: gravity
+spec:
+  ports:
+    - port: 1433
+      name: tcp
+      protocol: TCP
+  selector:
+    name: demo1-mssql
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo1-mssql
+  labels:
+    name: demo1-mssql
+spec:
+  containers:
+    - image: mcr.microsoft.com/mssql/server:2017-latest
+      name: demo1-mssql
+      env:
+        - name: "ACCEPT_EULA"
+          value: "Y"
+        - name: "SA_PASSWORD"
+          value: "1qaz@WSX"
+        - name: "MSSQL_AGENT_ENABLED"
+          value: "true"
+      volumeMounts:
+      - mountPath: /docker-entrypoint-initdb.d
+        name: mssql-init
+      ports:
+        - containerPort: 1433
+          name: tcp
+  volumes:
+  - name: mssql-init
+    configMap:
+      name: mssql-init
+      items:
+      - key: mssql_init.sql
+        path: init.sql

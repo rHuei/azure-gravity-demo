@@ -1,0 +1,205 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: demo3-controller-pvc 
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi
+  storageClassName: gravity-azurefile
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: demo3-synchronizer-pvc 
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: gravity-azurefile
+---
+
+apiVersion: "gravity.brobridge.com/v4"
+kind: "Gravity"
+metadata:
+  name: "demo3-gravity"
+spec:
+
+  natsSpec:
+    replicas: 3
+
+  controllerSpec:
+    config:
+      volume:
+        name: gravity-controller-store
+        persistentVolumeClaim:
+          claimName: demo3-controller-pvc
+
+  synchronizerSpec:
+    config:
+      collectionSettings: |
+        {
+          "collections": {
+            "userData": {
+              "schema": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "gender": { "type": "int" },
+                "username": { "type": "string" },
+                "email": { "type": "string" },
+                "phone": { "type": "string" }
+              }
+            }
+          }
+        }
+
+      rulesSettings: |
+        {
+          "rules": [
+            {
+              "event": "userInitialized",
+              "collection": "userData",
+              "method": "insert",
+              "primaryKey": "id",
+              "schema": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "gender": { "type": "int" },
+                "username": { "type": "string" },
+                "email": { "type": "string" },
+                "phone": { "type": "string" }
+              },
+              "handler": {
+                "script": "
+                  maskedArr = [];
+                  for (i = 0; i < source.name.length; i++) {
+                    if (i == 0 || i == source.name.length -1) {
+                      maskedArr.push(source.name.charAt(i));
+                      continue;
+                    }
+
+                    if (source.name.charAt(i) == ' ') {
+                      maskedArr.push(source.name.charAt(i));
+                      continue;
+                    }
+
+                    maskedArr.push('*');
+                  }
+
+                  maskedName = maskedArr.join('');
+
+                  return {
+                    id: source.id,
+                    name: maskedName,
+                    gender: source.gender,
+                    username: source.username,
+                    email: source.email,
+                    phone: source.phone
+                  }"
+              }
+            },
+            {
+              "event": "userCreated",
+              "collection": "userData",
+              "method": "insert",
+              "primaryKey": "id",
+              "schema": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "gender": { "type": "int" },
+                "username": { "type": "string" },
+                "email": { "type": "string" },
+                "phone": { "type": "string" }
+              },
+              "handler": {
+                "script": "
+                  maskedArr = [];
+                  for (i = 0; i < source.name.length; i++) {
+                    if (i == 0 || i == source.name.length -1) {
+                      maskedArr.push(source.name.charAt(i));
+                      continue;
+                    }
+
+                    if (source.name.charAt(i) == ' ') {
+                      maskedArr.push(source.name.charAt(i));
+                      continue;
+                    }
+
+                    maskedArr.push('*');
+                  }
+
+                  maskedName = maskedArr.join('');
+
+                  return {
+                    id: source.id,
+                    name: maskedName,
+                    gender: source.gender,
+                    username: source.username,
+                    email: source.email,
+                    phone: source.phone
+                    }"
+              }
+            },
+            {
+              "event": "userUpdated",
+              "collection": "userData",
+              "method": "update",
+              "primaryKey": "id",
+              "schema": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "gender": { "type": "int" },
+                "username": { "type": "string" },
+                "email": { "type": "string" },
+                "phone": { "type": "string" }
+              },
+              "handler": {
+                "script": "
+                  maskedArr = [];
+                  for (i = 0; i < source.name.length; i++) {
+                    if (i == 0 || i == source.name.length-1) {
+                      maskedArr.push(source.name.charAt(i));
+                      continue;
+                    }
+
+                    if (source.name.charAt(i) == ' ') {
+                      maskedArr.push(source.name.charAt(i));
+                      continue;
+                    }
+
+                    maskedArr.push('*');
+                  }
+
+                  maskedName = maskedArr.join('');
+
+                  return {
+                    id: source.id,
+                    name: maskedName,
+                    gender: source.gender,
+                    username: source.username,
+                    email: source.email,
+                    phone: source.phone
+                  }"
+              }
+            },
+            {
+              "event": "userDeleted",
+              "collection": "userData",
+              "method": "delete",
+              "primaryKey": "id",
+              "handler": {
+                "script": "return { id: source.id }"
+              }
+            }
+          ]
+         }
+      volume:
+        #NOTE: reference https://kubernetes.io/docs/concepts/storage/volumes/
+        name: gravity-synchronizer-store
+        persistentVolumeClaim:
+          claimName: demo3-synchronizer-pvc
+

@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gravity-transmitter-pvc 
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi
+  storageClassName: gravity-azurefile
+
+---
+
+apiVersion: "gravity.brobridge.com/v3"
+kind: "Transmitter"
+metadata:
+  name: "demo1-gravity-transmitter"
+spec:
+    type: postgres
+    image: brobridgehub/gravity-transmitter-postgres:v3.2.0
+    imagePullPolicy: IfNotPresent
+    config:
+      gravityHost: demo1-gravity-nats:4222
+      subscriptionSettings: |
+        {
+          "subscriptions": {
+            "accountData": [
+              "users"
+            ]
+          }
+        }
+      postgresConfig:
+        host: demo1-postgres
+        port: 5432
+        secure: false
+        dbName:  postgres
+        username: postgres
+        password: 1qazWWSX
+

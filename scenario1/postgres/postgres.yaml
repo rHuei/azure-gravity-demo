@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+data:
+  postgres_init.sql: "create table users(\n\t
+  id varchar(50) primary key,\n\t
+  name varchar(50),\n\t
+  gender int,\n\t
+  username varchar(50),\n\t
+  email varchar(80),\n\t
+  phone varchar(50)\n
+  );\n"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo1-postgres
+  labels:
+    app: postgres
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: postgres
+    tier: postgres
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv-claim
+  labels:
+    app: postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1  
+kind: Deployment
+metadata:
+  name: demo1-postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: postgres
+        tier: postgres
+    spec:
+      containers:
+        - image: postgres:13.3
+          name: postgres
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_PASSWORD
+              value: "1qazWWSX"
+          ports:
+            - containerPort: 5432
+              name: postgres
+          volumeMounts:
+            - name: postgres-persistent-storage
+              mountPath: /var/lib/postgresql/data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: postgres-init
+      volumes:
+        - name: postgres-persistent-storage
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
+        - name: postgres-init
+          configMap:
+            name: postgres-init
+            items:
+            - key: postgres_init.sql
+              path: init.sql
+      restartPolicy: Always

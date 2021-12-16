@@ -1,0 +1,11 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gravity-demo-genuser
+spec:
+  template:
+    spec:
+      containers:
+      - name: genuser
+        image: st904583114/gravity-demo-genuser:aks-mssql
+      restartPolicy: Never

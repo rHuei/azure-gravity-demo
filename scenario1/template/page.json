@@ -1,0 +1,20 @@
+{
+  "method": "get",
+  "uri": "/user",
+  "query": {
+		"table": "users",
+		"orderBy": "id",
+		"descending": false,
+		"pagination": {
+			"page": "parseInt(query.page)",
+			"limit": "parseInt(query.limit)"
+		}
+  },
+  "response": {
+    "state": {
+      "success": {
+        "contentType": "text/html"
+      }
+    }
+  }
+}
