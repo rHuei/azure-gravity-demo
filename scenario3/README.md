@@ -10,7 +10,7 @@
 
 ### 操作方式：
 ```
-cd ~/demo/scenario3
+cd ~/azure-gravity-demo/scenario3
 ```
 
 1. 搭建一座  MySQL (v8.0)
@@ -47,11 +47,9 @@ kubectl -n gravity-demo apply -f 20-transmitter-mysql.yaml
 5. 到接收端的 MySQL 確認資料總筆數與內容
 
 ```
-kubectl -n gravity-demo exec -it demo3-mysql -- bash
-
-echo "select count(*) from users;" | mysql -u mysql -p1qaz@WSX -D gravity
-
-echo "select * from users limit 10;" | mysql -u mysql -p1qaz@WSX -D gravity
-exit
+kubectl -n gravity-demo exec -it demo3-mysql -- mysql -u mysql -p1qaz@WSX -D gravity
+> select count(*) from users;
+> select * from users limit 10;
+> exit
 ```
 
