@@ -50,4 +50,5 @@ kubectl -n gravity-demo apply -f 00-transmitter-mysql.yaml
 kubectl -n gravity-demo exec -it demo2-mysql -- mysql -u mysql -p1qaz@WSX -D gravity
 > select count(*) from users;
 > select * from users limit 10;
+> exit
 ```
