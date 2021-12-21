@@ -41,47 +41,39 @@ spec:
     requests:
       storage: 2Gi
 ---
-apiVersion: apps/v1  
-kind: Deployment
+apiVersion: v1  
+kind: Pod
 metadata:
   name: demo1-postgres
+  labels:
+   app: postgres
+   tier: postgres
 spec:
-  selector:
-    matchLabels:
-      app: postgres
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        app: postgres
-        tier: postgres
-    spec:
-      containers:
-        - image: postgres:13.3
+  containers:
+    - image: postgres:13.3
+      name: postgres
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        - name: POSTGRES_PASSWORD
+          value: "1qazWWSX"
+      ports:
+        - containerPort: 5432
           name: postgres
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: PGDATA
-              value: /var/lib/postgresql/data/pgdata
-            - name: POSTGRES_PASSWORD
-              value: "1qazWWSX"
-          ports:
-            - containerPort: 5432
-              name: postgres
-          volumeMounts:
-            - name: postgres-persistent-storage
-              mountPath: /var/lib/postgresql/data
-            - mountPath: /docker-entrypoint-initdb.d
-              name: postgres-init
-      volumes:
+      volumeMounts:
         - name: postgres-persistent-storage
-          persistentVolumeClaim:
-            claimName: postgres-pv-claim
-        - name: postgres-init
-          configMap:
-            name: postgres-init
-            items:
-            - key: postgres_init.sql
-              path: init.sql
-      restartPolicy: Always
+          mountPath: /var/lib/postgresql/data
+        - mountPath: /docker-entrypoint-initdb.d
+          name: postgres-init
+  volumes:
+    - name: postgres-persistent-storage
+      persistentVolumeClaim:
+        claimName: postgres-pv-claim
+    - name: postgres-init
+      configMap:
+        name: postgres-init
+        items:
+        - key: postgres_init.sql
+          path: init.sql
+  restartPolicy: Always
