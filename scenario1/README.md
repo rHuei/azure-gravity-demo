@@ -180,4 +180,4 @@ spec:
 kubectl -n gravity-demo get svc demo1-presenter-rest
 demo1-presenter-rest              LoadBalancer    10.96.142.128    <IP>        44148:30453/TCP     3m53s
 ```
-資料呈現網址 : http://<IP>:44148/user?page=1&limit=100
+資料呈現網址 : `http://<IP>:44148/user?page=1&limit=100`
