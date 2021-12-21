@@ -30,10 +30,14 @@ kubectl -n gravity-demo apply -f ./mssql
 kubectl -n gravity-demo get pods
 ```
 ```
-kubectl -n gravity-demo exec -it demo1-mssql -- bash
-/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 1qaz@WSX -i /docker-entrypoint-initdb.d/init.sql
-# 等待腳本執行完成後即可退出
-exit
+kubectl -n gravity-demo exec -it demo1-mssql -- /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 1qaz@WSX -i /docker-entrypoint-initdb.d/init.sql
+
+kubectl -n gravity-demo exec -it demo1-mssql -- /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 1qaz@WSX
+> use TestDB;
+> GO
+> select count(*) from users;
+> GO
+> exit
 ```
 ##### Microsoft SQL Server 連線資訊:
 
