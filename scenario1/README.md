@@ -14,7 +14,7 @@
 1. 建立 gravity-demo 的 namespace
 
 ```
-cd ~/demo/scenario1
+cd scenario1
 kubectl create ns gravity-demo
 ```
 
