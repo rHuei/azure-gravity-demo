@@ -64,13 +64,7 @@ create table users(
 );
 ```
 
-4. 建立 User 基礎資料
-
-```
-kubectl -n gravity-demo apply -f ./genuser
-```
-
-5. 搭建一座 PostgreSQL (v13.3)
+4. 搭建一座 PostgreSQL (v13.3)
 
 ```
 kubectl -n gravity-demo apply -f ./postgres
@@ -97,22 +91,28 @@ create table users(
 );
 ```
 
-6. 建立 Gravity DataNode :
+5. 建立 Gravity DataNode :
 
 ```
 kubectl -n gravity-demo apply -f 10-gravity.yaml
 ```
 
-7. 建立 Gravity Adapter (擷取 Ｍicrosoft SQL Server 的 CDC 資料) :
+6. 建立 Gravity Adapter (擷取 Ｍicrosoft SQL Server 的 CDC 資料) :
 
 ```
 kubectl -n gravity-demo apply -f 20-adapter.yaml
 ```
 
-8. 建立 Gravity Transmitter (將 Gravity 內部的資料傳至 PostgreSQL) :
+7. 建立 Gravity Transmitter (將 Gravity 內部的資料傳至 PostgreSQL) :
 
 ```
 kubectl -n gravity-demo apply -f 30-transmitter.yaml
+```
+
+8. 建立 User 基礎資料
+
+```
+kubectl -n gravity-demo apply -f ./genuser
 ```
 
 9. 到接收端的 PostgreSQL 確認資料總筆數與內容
