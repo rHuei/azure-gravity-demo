@@ -121,7 +121,7 @@ kubectl -n gravity-demo apply -f 30-transmitter.yaml
 kubectl -n gravity-demo get pods | grep demo1-postgres
 ```
 ```
-kubectl -n gravity-demo exec -it demo1-postgres -- psql -U postgres -W 1qazWWSX -d postgres
+kubectl -n gravity-demo exec -it demo1-postgres -- psql -U postgres -d postgres
 > select count(*) from users;
 > select * from users limit 10;
 > exit
